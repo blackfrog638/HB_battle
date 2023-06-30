@@ -1,4 +1,5 @@
 class Settings():
+    #add a line to check
     def __init__(self):
         #the basic settings
         self.bg_color = (230,230,230)
