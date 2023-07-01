@@ -18,15 +18,11 @@ def check_events(stats, heroes):
                 stats.mouse_down == False
                 #the mouse is clicked
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                clicked_sprite = check_mouse(heroes, mouse_x, mouse_y)
-                if clicked_sprite != None:
-                    #someone is clicked
-                    tag = 4 * (clicked_sprite.team-1) + clicked_sprite.id
-                    stats.select_menu[tag] = 1 - stats.select_menu[tag]
-                print(stats.select_menu)
+                set_herolist(heroes, mouse_x, mouse_y, stats)
+                
 
         
-def update_screen(ai_settings, screen, heroes):
+def update_screen(ai_settings, screen, heroes, nor_atk):
     screen.fill(ai_settings.bg_color)
     for id in range(4):
         hero = Hero(ai_settings, screen, 1, id, DEFAULT_HEROES[id])
@@ -36,6 +32,7 @@ def update_screen(ai_settings, screen, heroes):
         hero = Hero(ai_settings, screen, 2, id, DEFAULT_HEROES[4 + id])
         heroes.add(hero)
         hero.blitme()
+    nor_atk.blitme()
     #heroes.draw(screen)
     pygame.display.flip()
 
@@ -44,3 +41,11 @@ def check_mouse(group, mouse_x, mouse_y):
         if sprite.rect.collidepoint(mouse_x, mouse_y):
             return sprite
     return None
+
+def set_herolist(heroes, mouse_x, mouse_y, stats):
+    clicked_sprite = check_mouse(heroes, mouse_x, mouse_y)
+    if clicked_sprite != None:
+        #someone is clicked
+        tag = 4 * (clicked_sprite.team-1) + clicked_sprite.id
+        stats.select_menu[tag] = 1 - stats.select_menu[tag]
+        print(stats.select_menu)

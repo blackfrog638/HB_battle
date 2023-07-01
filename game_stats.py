@@ -6,3 +6,5 @@ class GameStats():
         """set flags and overall datas in this file"""
         self.mouse_down = False
         self.select_menu = [0,0,0,0,0,0,0,0]
+        self.turn = 1
+        self.select_action = [0,0,0]
