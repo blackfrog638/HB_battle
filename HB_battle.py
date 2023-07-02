@@ -17,7 +17,7 @@ def run_game():
     heroes = Group()
     gf.generate_hero(ai_settings, screen, heroes)
     while True:
-        gf.update_screen(ai_settings, screen, heroes, nor_atk)
+        gf.update_screen(ai_settings, screen, heroes, nor_atk, stats)
         gf.check_events(stats, heroes, nor_atk)
         gf.check_turn(stats)
 run_game()

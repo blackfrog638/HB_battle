@@ -30,10 +30,10 @@ def generate_hero(ai_settings, screen, heroes):
         hero = Hero(ai_settings, screen, 2, id, DEFAULT_HEROES[4 + id])
         heroes.add(hero)
         
-def update_screen(ai_settings, screen, heroes, nor_atk):
+def update_screen(ai_settings, screen, heroes, nor_atk, stats):
     screen.fill(ai_settings.bg_color)
     for id in range(8):   
-        heroes.sprites()[id].blitme()
+        heroes.sprites()[id].blitme(stats.select_menu[id])
     nor_atk.blitme()
     #heroes.draw(screen)
     pygame.display.flip()

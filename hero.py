@@ -19,6 +19,10 @@ class Hero(Sprite):
         #set the image mode
         self.image = pygame.image.load('images/heroblock.bmp')
         self.rect = self.image.get_rect()
+        #select_frame
+        self.select_image = pygame.image.load('images/able_select.bmp')
+        self.s_rect = self.select_image.get_rect()
+
         if id == 0:
             self.rect.left = int(2 * self.rect.width)
             self.rect.centery = ai_settings.screen_hgt/2
@@ -28,6 +32,8 @@ class Hero(Sprite):
         if team == 2:
             self.rect.centerx = ai_settings.screen_wid - self.rect.centerx
 
+        #locate frame
+        self.s_rect.center = self.rect.center
         #all the data of the hero
         self.reset_elements()
 
@@ -70,7 +76,7 @@ class Hero(Sprite):
         self.dfn_image_rect.top = self.atk_image_rect.bottom + 5
         self.mp_image_rect.top = self.dfn_image_rect.bottom + 5
         
-    def blitme(self):
+    def blitme(self, enabled):
         self.preptext()
         """draw the heroblock"""
         self.screen.blit(self.image, self.rect)
@@ -79,4 +85,6 @@ class Hero(Sprite):
         self.screen.blit(self.atk_image, self.atk_image_rect)
         self.screen.blit(self.dfn_image, self.dfn_image_rect)
         self.screen.blit(self.mp_image, self.mp_image_rect)
-
+        
+        if enabled == 1:
+            self.screen.blit(self.select_image,self.s_rect)
