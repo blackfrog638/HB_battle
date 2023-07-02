@@ -60,6 +60,12 @@ def set_herolist(heroes, mouse_x, mouse_y, stats):
                         for i in range(0,4):
                             if i != tag:
                                 stats.select_menu[i] = 0
+                    else:
+                        for i in range(0,4):
+                            stats.able_select[i] = 1
+                        for i in range(4,8):
+                            if i != tag:
+                                stats.select_menu[i] = 0
                     stats.select_menu[tag] = 1 - stats.select_menu[tag]
                 else:
                     if stats.turn == 1:
@@ -69,12 +75,33 @@ def set_herolist(heroes, mouse_x, mouse_y, stats):
                                 obj = i
                         heroes.sprites()[tag].hp -= (heroes.sprites()[obj].atk) - (heroes.sprites()[tag].dfn)
                         
-                        stats.has_acted[tag % 4] = 1
-                        stats.able_select[tag] = 0
+                        stats.has_acted[obj % 4] = 1
+                        stats.able_select[obj] = 0
                         for i in range(0,8):
                             stats.select_menu[i] = 0
                         for i in range(4,8):
                             stats.able_select[i] = 0
+                    else:
+                        obj = 0
+                        for i in range(4,8):
+                            if stats.select_menu[i] == 1:
+                                obj = i
+                        heroes.sprites()[tag].hp -= (heroes.sprites()[obj].atk) - (heroes.sprites()[tag].dfn)
+                        
+                        stats.has_acted[obj % 4] = 1
+                        stats.able_select[obj] = 0
+                        for i in range(0,8):
+                            stats.select_menu[i] = 0
+                        for i in range(0,4):
+                            stats.able_select[i] = 0
 
                 
         print(stats.select_menu)
+
+def check_turn(stats):
+    if sum(stats.has_acted) == 4:
+        stats.turn = 3 - stats.turn
+        for i in range(0,4):
+            stats.has_acted[i] = 0
+        for i in range(0,4):
+            stats.able_select[(stats.turn - 1)*4 + i] = 1

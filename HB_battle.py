@@ -19,5 +19,5 @@ def run_game():
     while True:
         gf.update_screen(ai_settings, screen, heroes, nor_atk)
         gf.check_events(stats, heroes, nor_atk)
-        
+        gf.check_turn(stats)
 run_game()
