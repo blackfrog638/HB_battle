@@ -14,10 +14,10 @@ def run_game():
     screen = pygame.display.set_mode((ai_settings.screen_wid,ai_settings.screen_hgt))
     nor_atk = Nor_atk(ai_settings, screen)
     pygame.display.set_caption("HB_battle")
-
+    heroes = Group()
+    gf.generate_hero(ai_settings, screen, heroes)
     while True:
-        heroes = Group()
         gf.update_screen(ai_settings, screen, heroes, nor_atk)
-        gf.check_events(stats, heroes)
+        gf.check_events(stats, heroes, nor_atk)
         
 run_game()

@@ -33,7 +33,7 @@ class Hero(Sprite):
 
         #set text
         self.font = pygame.font.SysFont(ai_settings.text_font, 40)
-        self.preptext()
+
         
     def reset_elements(self):
         """initialization:
@@ -71,6 +71,7 @@ class Hero(Sprite):
         self.mp_image_rect.top = self.dfn_image_rect.bottom + 5
         
     def blitme(self):
+        self.preptext()
         """draw the heroblock"""
         self.screen.blit(self.image, self.rect)
         self.screen.blit(self.name_image, self.name_image_rect)
