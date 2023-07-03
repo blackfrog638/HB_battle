@@ -5,6 +5,7 @@ from game_stats import GameStats
 from settings import Settings
 from hero import Hero
 from actions import Nor_atk
+from extra_aid import TurnFlag
 import game_function as gf
 
 def run_game():
@@ -13,11 +14,12 @@ def run_game():
     stats = GameStats()
     screen = pygame.display.set_mode((ai_settings.screen_wid,ai_settings.screen_hgt))
     nor_atk = Nor_atk(ai_settings, screen)
+    flg = TurnFlag(screen, ai_settings, stats)
     pygame.display.set_caption("HB_battle")
     heroes = Group()
     gf.generate_hero(ai_settings, screen, heroes)
     while True:
-        gf.update_screen(ai_settings, screen, heroes, nor_atk, stats)
+        gf.update_screen(ai_settings, screen, heroes, nor_atk, stats, flg)
         gf.check_events(stats, heroes, nor_atk)
         gf.check_turn(stats)
 run_game()
