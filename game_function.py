@@ -6,7 +6,7 @@ from game_stats import GameStats
 from namelist import DEFAULT_HEROES
 import sys
 
-def check_events(stats, heroes, nor_atk):
+def check_events(stats, heroes, nor_atk, magic):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -21,6 +21,12 @@ def check_events(stats, heroes, nor_atk):
                 set_herolist(heroes, mouse_x, mouse_y, stats)
                 if nor_atk.rect.collidepoint(mouse_x, mouse_y):
                     stats.select_action = 1
+                    for i in range(0,8):
+                        stats.select_menu[i] = 0
+                if magic.rect.collidepoint(mouse_x, mouse_y):
+                    stats.select_action = 2
+                    for i in range(0,8):
+                        stats.select_menu[i] = 0
                 
 def generate_hero(ai_settings, screen, heroes):
     for id in range(4):
@@ -30,11 +36,12 @@ def generate_hero(ai_settings, screen, heroes):
         hero = Hero(ai_settings, screen, 2, id, DEFAULT_HEROES[4 + id])
         heroes.add(hero)
         
-def update_screen(ai_settings, screen, heroes, nor_atk, stats, flg):
+def update_screen(ai_settings, screen, heroes, nor_atk, magic, stats, flg):
     screen.fill(ai_settings.bg_color)
     for id in range(8):   
         heroes.sprites()[id].blitme(stats.select_menu[id])
     nor_atk.blitme()
+    magic.blitme()
     flg.blitme(stats)
     #heroes.draw(screen)
     pygame.display.flip()
@@ -50,54 +57,20 @@ def set_herolist(heroes, mouse_x, mouse_y, stats):
     if clicked_sprite != None:
         #someone is clicked
         tag = 4 * (clicked_sprite.team-1) + clicked_sprite.id
-        if stats.select_action == 1:
-            if stats.able_select[tag] == 1:   
-                #可以被选择
-                if stats.turn * 4 - tag > 0 and stats.turn * 4 - tag <= 4 and stats.has_acted[tag%4] == 0:
-                    #是自己队伍的
-                    if stats.turn == 1:
-                        for i in range(4,8):
-                            stats.able_select[i] = 1
-                        for i in range(0,4):
-                            if i != tag:
-                                stats.select_menu[i] = 0
-                    else:
-                        for i in range(0,4):
-                            stats.able_select[i] = 1
-                        for i in range(4,8):
-                            if i != tag:
-                                stats.select_menu[i] = 0
-                    stats.select_menu[tag] = 1 - stats.select_menu[tag]
-                else:
-                    if stats.turn == 1:
-                        obj = 0
-                        for i in range(0,4):
-                            if stats.select_menu[i] == 1:
-                                obj = i
-                        heroes.sprites()[tag].hp -= (heroes.sprites()[obj].atk) - (heroes.sprites()[tag].dfn)
-                        
-                        stats.has_acted[obj % 4] = 1
-                        stats.able_select[obj] = 0
-                        for i in range(0,8):
-                            stats.select_menu[i] = 0
-                        for i in range(4,8):
-                            stats.able_select[i] = 0
-                    else:
-                        obj = 0
-                        for i in range(4,8):
-                            if stats.select_menu[i] == 1:
-                                obj = i
-                        heroes.sprites()[tag].hp -= (heroes.sprites()[obj].atk) - (heroes.sprites()[tag].dfn)
-                        
-                        stats.has_acted[obj % 4] = 1
-                        stats.able_select[obj] = 0
-                        for i in range(0,8):
-                            stats.select_menu[i] = 0
-                        for i in range(0,4):
-                            stats.able_select[i] = 0
-
-                
-        print(stats.select_menu)
+        if stats.select_action == 1 and stats.able_select[tag] == 1:
+            #可以被选择
+            normalAttack(heroes, stats, tag)
+        if stats.select_action == 2 and stats.able_select[tag] == 1:
+            if stats.has_acted[tag%4] == 0:
+                if stats.turn == 1:
+                    stats.mp1 += clicked_sprite.mp
+                    stats.able_select[tag] = 0
+                    stats.has_acted[tag%4] = 1
+                if stats.turn == 2:
+                    stats.mp2 += clicked_sprite.mp
+                    stats.able_select[tag] = 0
+                    stats.has_acted[tag%4] = 1
+            print("mp1:" + str(stats.mp1) + "   mp2:" + str(stats.mp2))
 
 def check_turn(stats):
     if sum(stats.has_acted) == 4:
@@ -106,3 +79,47 @@ def check_turn(stats):
             stats.has_acted[i] = 0
         for i in range(0,4):
             stats.able_select[(stats.turn - 1)*4 + i] = 1
+
+def normalAttack(heroes, stats, tag):
+    if stats.turn * 4 - tag > 0 and stats.turn * 4 - tag <= 4 and stats.has_acted[tag%4] == 0:
+        #是自己队伍的
+        if stats.turn == 1:
+            for i in range(4,8):
+                stats.able_select[i] = 1
+            for i in range(0,4):
+                if i != tag:
+                    stats.select_menu[i] = 0
+        else:
+            for i in range(0,4):
+                stats.able_select[i] = 1
+            for i in range(4,8):
+                if i != tag:
+                    stats.select_menu[i] = 0
+        stats.select_menu[tag] = 1 - stats.select_menu[tag]
+    else:
+        if stats.turn == 1:
+            obj = 0
+            for i in range(0,4):
+                if stats.select_menu[i] == 1:
+                    obj = i
+            heroes.sprites()[tag].hp -= (heroes.sprites()[obj].atk) - (heroes.sprites()[tag].dfn)
+            
+            stats.has_acted[obj % 4] = 1
+            stats.able_select[obj] = 0
+            for i in range(0,8):
+                stats.select_menu[i] = 0
+            for i in range(4,8):
+                stats.able_select[i] = 0
+        else:
+            obj = 0
+            for i in range(4,8):
+                if stats.select_menu[i] == 1:
+                    obj = i
+            heroes.sprites()[tag].hp -= (heroes.sprites()[obj].atk) - (heroes.sprites()[tag].dfn)
+            
+            stats.has_acted[obj % 4] = 1
+            stats.able_select[obj] = 0
+            for i in range(0,8):
+                stats.select_menu[i] = 0
+            for i in range(0,4):
+                stats.able_select[i] = 0

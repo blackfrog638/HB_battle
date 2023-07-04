@@ -10,3 +10,5 @@ class GameStats():
         self.select_action = 0 
         self.able_select = [1,1,1,1,0,0,0,0]
         self.has_acted = [0,0,0,0]
+        self.mp1 = 0
+        self.mp2 = 0
