@@ -3,6 +3,7 @@ from settings import Settings
 from pygame.sprite import Sprite, Group
 from hero import Hero
 from game_stats import GameStats
+from extra_aid import TurnFlag
 from namelist import DEFAULT_HEROES
 import sys
 
@@ -36,13 +37,13 @@ def generate_hero(ai_settings, screen, heroes):
         hero = Hero(ai_settings, screen, 2, id, DEFAULT_HEROES[4 + id])
         heroes.add(hero)
         
-def update_screen(ai_settings, screen, heroes, nor_atk, magic, stats, flg):
+def update_screen(ai_settings, screen, heroes, nor_atk, magic, stats):
     screen.fill(ai_settings.bg_color)
     for id in range(8):   
         heroes.sprites()[id].blitme(stats.select_menu[id])
     nor_atk.blitme()
     magic.blitme()
-    flg.blitme(stats)
+    drawFlag(ai_settings, screen, stats)
     #heroes.draw(screen)
     pygame.display.flip()
 
@@ -70,7 +71,6 @@ def set_herolist(heroes, mouse_x, mouse_y, stats):
                     stats.mp2 += clicked_sprite.mp
                     stats.able_select[tag] = 0
                     stats.has_acted[tag%4] = 1
-            print("mp1:" + str(stats.mp1) + "   mp2:" + str(stats.mp2))
 
 def check_turn(stats):
     if sum(stats.has_acted) == 4:
@@ -79,6 +79,8 @@ def check_turn(stats):
             stats.has_acted[i] = 0
         for i in range(0,4):
             stats.able_select[(stats.turn - 1)*4 + i] = 1
+        for i in range(0,8):
+            stats.select_menu[i] = 0
 
 def normalAttack(heroes, stats, tag):
     if stats.turn * 4 - tag > 0 and stats.turn * 4 - tag <= 4 and stats.has_acted[tag%4] == 0:
@@ -123,3 +125,9 @@ def normalAttack(heroes, stats, tag):
                 stats.select_menu[i] = 0
             for i in range(0,4):
                 stats.able_select[i] = 0
+
+def drawFlag(ai_settings, screen, stats):
+    flag1 = TurnFlag(ai_settings, screen, stats, 1)
+    flag2 = TurnFlag(ai_settings, screen, stats, 2)
+    flag1.blitme()
+    flag2.blitme()
