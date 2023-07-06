@@ -40,7 +40,9 @@ class Hero(Sprite):
         #set text
         self.font = pygame.font.SysFont(ai_settings.text_font, 40)
 
-        
+        #person stats
+        self.isalive = True
+
     def reset_elements(self):
         """initialization:
         the concrete data of the heroes varies from name"""

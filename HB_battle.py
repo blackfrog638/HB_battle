@@ -20,7 +20,7 @@ def run_game():
     gf.generate_hero(ai_settings, screen, heroes)
     while True:
         gf.update_screen(ai_settings, screen, heroes, nor_atk, magic, skill, stats)
-        gf.check_events(stats, heroes, nor_atk, magic)
-        gf.check_turn(stats)
+        gf.check_events(stats, heroes, nor_atk, magic, skill)
+        gf.check_turn(stats, heroes)
 
 run_game()

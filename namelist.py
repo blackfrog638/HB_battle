@@ -10,3 +10,15 @@ DATALIST = {
 }
 
 DEFAULT_HEROES = ['bzf', 'lby', 'bcd', 'lal', 'hj', 'syy', 'czr', 'zs']
+
+SKILL_SELECTION = {
+    'bzf' : [],
+    'lby' : ['a teammate'],
+    'bcd' : [],
+    'lal' : ['a teammate'],
+    'syy' : ['an enemy'],
+    'hj' : ['a dead person'],
+    'czr' : ['an enemy', 'an enemy'],
+    'zs' : [],
+
+}
