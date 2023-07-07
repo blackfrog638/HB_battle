@@ -12,3 +12,12 @@ class GameStats():
         self.has_acted = [0,0,0,0]
         self.mp1 = 0
         self.mp2 = 0
+
+        #skills
+        self.skill_period = 0
+        #技能选到第几个人
+        self.is_choosing = False
+        #是否正在选人（技能）
+        self.on_skill = -1
+        #正在使用技能的人下标
+        self.personlist = []

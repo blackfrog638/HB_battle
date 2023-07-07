@@ -4,7 +4,7 @@ from pygame.sprite import Sprite, Group
 from hero import Hero
 from game_stats import GameStats
 from extra_aid import TurnFlag
-from namelist import DEFAULT_HEROES
+from namelist import DEFAULT_HEROES, SKILL_SELECTION
 import sys
 
 def check_events(stats, heroes, nor_atk, magic, skill):
@@ -63,22 +63,41 @@ def set_herolist(heroes, mouse_x, mouse_y, stats):
     if clicked_sprite != None:
         #someone is clicked
         tag = 4 * (clicked_sprite.team-1) + clicked_sprite.id
-        if stats.select_action == 1 and stats.able_select[tag] == 1:
-            #可以被选择
-            normalAttack(heroes, stats, tag)
-        if stats.select_action == 2 and stats.able_select[tag] == 1:
-            if stats.has_acted[tag%4] == 0:
-                if stats.turn == 1:
-                    stats.mp1 += clicked_sprite.mp
-                    stats.able_select[tag] = 0
-                    stats.has_acted[tag%4] = 1
-                if stats.turn == 2:
-                    stats.mp2 += clicked_sprite.mp
-                    stats.able_select[tag] = 0
-                    stats.has_acted[tag%4] = 1
-        if stats.select_action == 3 and stats.able_select[tag] == 1:
-            #check skill part
-            ask_for_selection()
+        if stats.is_choosing == False:
+            if stats.select_action == 1 and stats.able_select[tag] == 1:
+                #可以被选择
+                normalAttack(heroes, stats, tag)
+            if stats.select_action == 2 and stats.able_select[tag] == 1:
+                if stats.has_acted[tag%4] == 0:
+                    if stats.turn == 1:
+                        stats.mp1 += clicked_sprite.mp
+                        stats.able_select[tag] = 0
+                        stats.has_acted[tag%4] = 1
+                    if stats.turn == 2:
+                        stats.mp2 += clicked_sprite.mp
+                        stats.able_select[tag] = 0
+                        stats.has_acted[tag%4] = 1
+            if stats.select_action == 3 and stats.able_select[tag] == 1:
+                #check skill part
+                stats.on_skill = tag
+                stats.is_choosing = True
+                stats.personlist = []
+                for i in range(0,8):
+                    stats.select_menu[i] = 0
+        else:
+            #开始在skill部分选人
+            if check_legal(SKILL_SELECTION[heroes.sprites()[stats.on_skill].name][stats.skill_period], heroes.sprites()[stats.on_skill], clicked_sprite):
+                stats.personlist.append(clicked_sprite)
+                stats.skill_period += 1
+            #检查是否已经选满可以结束
+            if stats.skill_period == len(SKILL_SELECTION[heroes.sprites()[stats.on_skill].name]):
+                deal_with_skills(heroes, stats)
+                #重新归零
+                stats.has_acted[stats.on_skill] = 1
+                stats.is_choosing = False
+                stats.personlist = []
+                stats.on_skill = -1
+                stats.skill_period = 0
 
 def check_turn(stats, heroes):
     cnt = 0
@@ -148,5 +167,14 @@ def drawFlag(ai_settings, screen, stats):
     flag1.blitme()
     flag2.blitme()
 
-def ask_for_selection():
-    """find a selection"""
+def check_legal(limit, subject, hero):
+    if limit == 'a teammate':
+        return subject.team == hero.team
+    if limit == 'an enemy':
+        return subject.team != hero.team
+    if limit == 'a dead person':
+        return (not hero.isalive)
+    
+def deal_with_skills(heroes, stats):
+    """fixing"""
+    
