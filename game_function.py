@@ -44,7 +44,8 @@ def generate_hero(ai_settings, screen, heroes):
 def update_screen(ai_settings, screen, heroes, nor_atk, magic, skill, stats):
     screen.fill(ai_settings.bg_color)
     for id in range(8):   
-        heroes.sprites()[id].blitme(stats.select_menu[id])
+        if heroes.sprites()[id].isalive:
+            heroes.sprites()[id].blitme(stats.select_menu[id])
     nor_atk.blitme()
     magic.blitme()
     skill.blitme()
@@ -79,20 +80,20 @@ def set_herolist(heroes, mouse_x, mouse_y, stats):
                         stats.has_acted[tag%4] = 1
             if stats.select_action == 3 and stats.able_select[tag] == 1 and stats.has_acted[tag % 4] == 0:
                 #check skill part
-                stats.on_skill = tag
-                stats.is_choosing = True
-                stats.personlist = []
-                for i in range(0,8):
-                    stats.select_menu[i] = 0
-
-                if len(SKILL_SELECTION[heroes.sprites()[tag].name]) == 0:
-                    deal_with_skills(heroes, stats)
-                    #重新归零
-                    stats.has_acted[tag] = 1
-                    stats.is_choosing = False
-                    stats.personlist = []
-                    stats.on_skill = -1
-                    stats.skill_period = 0
+                if stats.turn == 1:
+                    if stats.half_cost1 == 0 and stats.mp1 >= 3:
+                        stats.mp1 -= 3
+                        skill(stats, heroes, tag)
+                    if stats.half_cost1 != 0 and stats.mp1 >= 6:
+                        stats.mp1 -= 6
+                        skill(stats, heroes, tag)
+                else:
+                    if stats.half_cost2 == 0 and stats.mp2 >= 3:
+                        stats.mp1 -= 3
+                        skill(stats, heroes, tag)
+                    if stats.half_cost2 != 0 and stats.mp2 >= 6:
+                        stats.mp2 -= 6
+                        skill(stats, heroes, tag)
         else:
             #开始在skill部分选人
             if len(SKILL_SELECTION[heroes.sprites()[stats.on_skill].name]) != 0:
@@ -108,7 +109,6 @@ def set_herolist(heroes, mouse_x, mouse_y, stats):
                 stats.personlist = []
                 stats.on_skill = -1
                 stats.skill_period = 0
-                print("done.")
 
 def check_turn(stats, heroes):
     cnt = 0
@@ -122,6 +122,8 @@ def check_turn(stats, heroes):
                 cnt += 1
     if sum(stats.has_acted) == cnt:
         stats.turn = 3 - stats.turn
+        stats.half_cost1 -= 1
+        stats.half_cost2 -= 1
         for i in range(0,4):
             stats.has_acted[i] = 0
             #被嘲讽的角色失去操作机会
@@ -195,7 +197,6 @@ def check_legal(limit, subject, hero):
     
 def deal_with_skills(heroes, stats):
     """fixing"""
-    print("starting...")
     target_sprite = heroes.sprites()[stats.on_skill]
     if target_sprite.name == 'bzf':
         heroes.sprites()[stats.on_skill].atk += 1
@@ -217,3 +218,27 @@ def deal_with_skills(heroes, stats):
     if target_sprite.name == 'syy':
         heroes.sprites()[stats.on_skill].hp -= (heroes.sprites()[stats.personlist[0]].atk - heroes.sprites()[stats.on_skill].dfn-1)
         heroes.sprites()[stats.personlist[0]].taunt = True
+    if target_sprite.name == 'czr':
+        heroes.sprites()[stats.personlist[0]].hp -= (target_sprite.atk + 1 - heroes.sprites()[stats.personlist[0]].dfn)
+        heroes.sprites()[stats.personlist[1]].hp -= (target_sprite.atk + 1 - heroes.sprites()[stats.personlist[1]].dfn)
+    if target_sprite.name == 'zs':
+        if stats.turn == 1:
+            stats.half_cost1 = 2
+        if stats.turn == 2:
+            stats.half_cost2 = 2
+
+def skill(stats, heroes, tag):
+    stats.on_skill = tag
+    stats.is_choosing = True
+    stats.personlist = []
+    for i in range(0,8):
+        stats.select_menu[i] = 0
+
+    if len(SKILL_SELECTION[heroes.sprites()[tag].name]) == 0:
+        deal_with_skills(heroes, stats)
+        #重新归零
+        stats.has_acted[tag % 4] = 1
+        stats.is_choosing = False
+        stats.personlist = []
+        stats.on_skill = -1
+        stats.skill_period = 0

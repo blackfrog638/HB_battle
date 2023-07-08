@@ -10,8 +10,12 @@ class GameStats():
         self.select_action = 0 
         self.able_select = [1,1,1,1,0,0,0,0]
         self.has_acted = [0,0,0,0]
+
+        #队内修正
         self.mp1 = 0
         self.mp2 = 0
+        self.half_cost1 = -1
+        self.half_cost2 = -1
 
         #skills
         self.skill_period = 0
@@ -20,4 +24,4 @@ class GameStats():
         #是否正在选人（技能）
         self.on_skill = -1
         #正在使用技能的人下标
-        self.personlist = []
+        self.personlist = []   
