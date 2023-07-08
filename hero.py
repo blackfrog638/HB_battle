@@ -51,6 +51,10 @@ class Hero(Sprite):
         self.dfn = DATALIST[self.name][2]
         self.mp = DATALIST[self.name][3]
 
+        #skill tag
+        self.shield = 0
+        self.taunt = False
+
     #表示这一段我实在重构不出来了，只能写这么又臭又长的一段，不好意思捏
     def preptext(self):
         """turn the text into images"""

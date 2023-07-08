@@ -77,30 +77,42 @@ def set_herolist(heroes, mouse_x, mouse_y, stats):
                         stats.mp2 += clicked_sprite.mp
                         stats.able_select[tag] = 0
                         stats.has_acted[tag%4] = 1
-            if stats.select_action == 3 and stats.able_select[tag] == 1:
+            if stats.select_action == 3 and stats.able_select[tag] == 1 and stats.has_acted[tag % 4] == 0:
                 #check skill part
                 stats.on_skill = tag
                 stats.is_choosing = True
                 stats.personlist = []
                 for i in range(0,8):
                     stats.select_menu[i] = 0
+
+                if len(SKILL_SELECTION[heroes.sprites()[tag].name]) == 0:
+                    deal_with_skills(heroes, stats)
+                    #重新归零
+                    stats.has_acted[tag] = 1
+                    stats.is_choosing = False
+                    stats.personlist = []
+                    stats.on_skill = -1
+                    stats.skill_period = 0
         else:
             #开始在skill部分选人
-            if check_legal(SKILL_SELECTION[heroes.sprites()[stats.on_skill].name][stats.skill_period], heroes.sprites()[stats.on_skill], clicked_sprite):
-                stats.personlist.append(clicked_sprite)
-                stats.skill_period += 1
-            #检查是否已经选满可以结束
+            if len(SKILL_SELECTION[heroes.sprites()[stats.on_skill].name]) != 0:
+                if check_legal(SKILL_SELECTION[heroes.sprites()[stats.on_skill].name][stats.skill_period], heroes.sprites()[stats.on_skill], clicked_sprite):
+                    stats.personlist.append(tag)
+                    stats.skill_period += 1
+                 #检查是否已经选满可以结束
             if stats.skill_period == len(SKILL_SELECTION[heroes.sprites()[stats.on_skill].name]):
                 deal_with_skills(heroes, stats)
                 #重新归零
-                stats.has_acted[stats.on_skill] = 1
+                stats.has_acted[stats.on_skill % 4] = 1
                 stats.is_choosing = False
                 stats.personlist = []
                 stats.on_skill = -1
                 stats.skill_period = 0
+                print("done.")
 
 def check_turn(stats, heroes):
     cnt = 0
+    #cnt:现存本队存活人数
     for i in range(0,8):
         if heroes.sprites()[i].hp <= 0:
             heroes.sprites()[i].isalive = False
@@ -112,9 +124,14 @@ def check_turn(stats, heroes):
         stats.turn = 3 - stats.turn
         for i in range(0,4):
             stats.has_acted[i] = 0
+            #被嘲讽的角色失去操作机会
+            if heroes.sprites()[i + (stats.turn-1) * 4].taunt:
+                stats.has_acted[i] = 1
+                heroes.sprites()[i + (stats.turn-1) * 4].taunt = False
         for i in range(0,4):
             stats.able_select[(stats.turn - 1)*4 + i] = 1
         for i in range(0,8):
+            heroes.sprites()[i].shield -= 1
             stats.select_menu[i] = 0
 
 def normalAttack(heroes, stats, tag):
@@ -134,32 +151,33 @@ def normalAttack(heroes, stats, tag):
                     stats.select_menu[i] = 0
         stats.select_menu[tag] = 1 - stats.select_menu[tag]
     else:
-        if stats.turn == 1:
-            obj = 0
-            for i in range(0,4):
-                if stats.select_menu[i] == 1:
-                    obj = i
-            heroes.sprites()[tag].hp -= (heroes.sprites()[obj].atk) - (heroes.sprites()[tag].dfn)
-            
-            stats.has_acted[obj % 4] = 1
-            stats.able_select[obj] = 0
-            for i in range(0,8):
-                stats.select_menu[i] = 0
-            for i in range(4,8):
-                stats.able_select[i] = 0
-        else:
-            obj = 0
-            for i in range(4,8):
-                if stats.select_menu[i] == 1:
-                    obj = i
-            heroes.sprites()[tag].hp -= (heroes.sprites()[obj].atk) - (heroes.sprites()[tag].dfn)
-            
-            stats.has_acted[obj % 4] = 1
-            stats.able_select[obj] = 0
-            for i in range(0,8):
-                stats.select_menu[i] = 0
-            for i in range(0,4):
-                stats.able_select[i] = 0
+        if heroes.sprites()[tag].shield <= 0:
+            if stats.turn == 1:
+                obj = 0
+                for i in range(0,4):
+                    if stats.select_menu[i] == 1:
+                        obj = i
+                heroes.sprites()[tag].hp -= (heroes.sprites()[obj].atk) - (heroes.sprites()[tag].dfn)
+
+                stats.has_acted[obj % 4] = 1
+                stats.able_select[obj] = 0
+                for i in range(0,8):
+                    stats.select_menu[i] = 0
+                for i in range(4,8):
+                    stats.able_select[i] = 0
+            else:
+                obj = 0
+                for i in range(4,8):
+                    if stats.select_menu[i] == 1:
+                        obj = i
+                heroes.sprites()[tag].hp -= (heroes.sprites()[obj].atk) - (heroes.sprites()[tag].dfn)
+
+                stats.has_acted[obj % 4] = 1
+                stats.able_select[obj] = 0
+                for i in range(0,8):
+                    stats.select_menu[i] = 0
+                for i in range(0,4):
+                    stats.able_select[i] = 0
 
 def drawFlag(ai_settings, screen, stats):
     flag1 = TurnFlag(ai_settings, screen, stats, 1)
@@ -177,4 +195,25 @@ def check_legal(limit, subject, hero):
     
 def deal_with_skills(heroes, stats):
     """fixing"""
-    
+    print("starting...")
+    target_sprite = heroes.sprites()[stats.on_skill]
+    if target_sprite.name == 'bzf':
+        heroes.sprites()[stats.on_skill].atk += 1
+        heroes.sprites()[stats.on_skill].hp -= 4
+    if target_sprite.name == 'lby':
+        heroes.sprites()[stats.personlist[0]].shield = 2
+    if target_sprite.name == 'bcd':
+        if stats.turn == 1:
+            stats.mp2 -= 9
+            if stats.mp2 < 0:
+                stats.mp2 = 0
+        if stats.turn == 2:
+            stats.mp1 -= 9
+            if stats.mp1 < 0:
+                stats.mp1 = 0
+    if target_sprite.name == 'lal':
+        stats.has_acted[stats.personlist[0]] = 0
+        stats.able_select[stats.personlist[0]] = 1
+    if target_sprite.name == 'syy':
+        heroes.sprites()[stats.on_skill].hp -= (heroes.sprites()[stats.personlist[0]].atk - heroes.sprites()[stats.on_skill].dfn-1)
+        heroes.sprites()[stats.personlist[0]].taunt = True
