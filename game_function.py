@@ -226,6 +226,8 @@ def deal_with_skills(heroes, stats):
             stats.half_cost1 = 2
         if stats.turn == 2:
             stats.half_cost2 = 2
+    if target_sprite.name == 'hj':
+        heroes.sprites()[stats.on_skill].hp += 5
 
 def skill(stats, heroes, tag):
     stats.on_skill = tag

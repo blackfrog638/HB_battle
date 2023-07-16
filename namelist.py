@@ -17,7 +17,7 @@ SKILL_SELECTION = {
     'bcd' : [],
     'lal' : ['a teammate'],
     'syy' : ['an enemy'],
-    'hj' : ['a dead person'],
+    'hj' : [],
     'czr' : ['an enemy', 'an enemy'],
     'zs' : [],
 
